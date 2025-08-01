@@ -2,17 +2,6 @@
 
 This project contains AWS CloudFormation template and Lambda function code for setting up an EventBridge scheduler that makes API calls to your server every 1 minute.
 
-## Files
-
-- `lambda_function.ts` - TypeScript Lambda function source code
-- `eventbridge-scheduler.yaml` - CloudFormation template
-- `build-and-deploy.js` - Local deployment script (requires AWS CLI)
-- `.github/workflows/deploy.yml` - GitHub Actions deployment workflow
-
-## Deployment Options
-
-### Option 1: GitHub Actions (Recommended)
-
 **Setup GitHub Secrets:**
 
 Go to your GitHub repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
@@ -24,6 +13,10 @@ Updated GitHub secrets list:
 - S3_BUCKET (required)
 - API_ENDPOINT (optional - your webhook URL)
 - AWS_REGION (optional)
+
+ Cost Comparison (1-minute schedule):
+  - EventBridge + Lambda: ~$0.50/month (43K invocations)
+  - EC2 t3.nano cron: ~$3.50/month (24/7 running)
 
 **IAM Permissions needed:**
 Your AWS user needs these permissions:
