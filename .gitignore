@@ -8,12 +8,11 @@ yarn-error.log*
 dist/
 *.tsbuildinfo
 
-# Generated files
-lambda-code.js
+# Deployment artifacts
+*.zip
 
 # AWS
 .aws/
-*.zip
 
 # Environment variables
 .env

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'EventBridge Scheduler that runs every 15 minutes to make API calls'
+Description: 'EventBridge Scheduler that runs every 1 minute to make API calls'
 
 Parameters:
   ApiEndpoint:
@@ -11,6 +11,15 @@ Parameters:
     Type: String
     Description: 'Name of the Lambda function'
     Default: 'eventbridge-api-caller'
+  
+  S3Bucket:
+    Type: String
+    Description: 'S3 bucket containing the Lambda deployment package'
+  
+  S3Key:
+    Type: String
+    Description: 'S3 key for the Lambda deployment package'
+    Default: 'lambda-deployment.zip'
 
 Resources:
   # IAM Role for Lambda Function
@@ -50,16 +59,16 @@ Resources:
         Variables:
           API_ENDPOINT: !Ref ApiEndpoint
       Code:
-        ZipFile: |
-          # LAMBDA_CODE_PLACEHOLDER
+        S3Bucket: !Ref S3Bucket
+        S3Key: !Ref S3Key
       Timeout: 30
 
-  # EventBridge Rule (runs every 15 minutes)
+  # EventBridge Rule (runs every 1 minute)
   ScheduledRule:
     Type: AWS::Events::Rule
     Properties:
-      Description: 'Trigger Lambda function every 15 minutes'
-      ScheduleExpression: 'rate(15 minutes)'
+      Description: 'Trigger Lambda function every 1 minute'
+      ScheduleExpression: 'rate(1 minute)'
       State: ENABLED
       Targets:
         - Arn: !GetAtt ApiCallerFunction.Arn

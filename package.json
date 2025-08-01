@@ -4,13 +4,11 @@
   "description": "Lambda function for EventBridge scheduler to make API calls",
   "main": "lambda_function.js",
   "scripts": {
-    "build": "tsc",
-    "embed": "node build-and-embed.js",
-    "package": "npm run build && zip -r lambda-deployment.zip dist/ package.json",
-    "deploy": "npm run embed && aws cloudformation deploy --template-file eventbridge-scheduler.yaml --stack-name eventbridge-api-scheduler --capabilities CAPABILITY_IAM --parameter-overrides ApiEndpoint=https://your-api-server.com/endpoint"
+    "deploy": "node build-and-deploy.js"
   },
   "dependencies": {
-    "@types/aws-lambda": "^8.10.119"
+    "@types/aws-lambda": "^8.10.119",
+    "archiver": "^6.0.1"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

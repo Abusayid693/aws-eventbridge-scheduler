@@ -1,71 +1,37 @@
 # EventBridge API Scheduler
 
-This project contains AWS CloudFormation template and Lambda function code for setting up an EventBridge scheduler that makes API calls to your server every 15 minutes.
+This project contains AWS CloudFormation template and Lambda function code for setting up an EventBridge scheduler that makes API calls to your server every 1 minute.
 
 ## Files
 
+- `lambda_function.ts` - TypeScript Lambda function source code
 - `eventbridge-scheduler.yaml` - CloudFormation template
-- `lambda_function.ts` - TypeScript Lambda function code
-- `package.json` - Node.js dependencies and scripts
-- `tsconfig.json` - TypeScript configuration
-
-## Setup
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Build the TypeScript code:
-```bash
-npm run build
-```
-
-3. Deploy the CloudFormation stack:
-```bash
-aws cloudformation deploy \
-  --template-file eventbridge-scheduler.yaml \
-  --stack-name eventbridge-api-scheduler \
-  --capabilities CAPABILITY_IAM \
-  --parameter-overrides ApiEndpoint=https://your-api-server.com/endpoint
-```
-
-## Configuration
-
-### Environment Variables
-
-- `API_ENDPOINT` - The API endpoint to call (set via CloudFormation parameter)
-- `API_KEY` - Optional API key for authentication
-
-### Customization
-
-1. **Change the schedule**: Modify the `ScheduleExpression` in the CloudFormation template
-2. **Change HTTP method**: Update the `method` in the Lambda function
-3. **Add authentication**: Set the `API_KEY` environment variable
-4. **Modify timeout**: Adjust the Lambda timeout in CloudFormation
+- `build-and-deploy.js` - Local deployment script (requires AWS CLI)
+- `.github/workflows/deploy.yml` - GitHub Actions deployment workflow
 
 ## Deployment Options
 
-### Option 1: CloudFormation (Recommended)
-Use the provided CloudFormation template for complete infrastructure setup.
+### Option 1: GitHub Actions (Recommended)
 
-### Option 2: Manual Lambda Deployment
-1. Build and package the function:
-```bash
-npm run package
-```
-2. Upload the `lambda-deployment.zip` to AWS Lambda manually
+**Setup GitHub Secrets:**
 
-## Monitoring
+Go to your GitHub repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
 
-- Check CloudWatch Logs for Lambda execution logs
-- Monitor EventBridge rule execution in the AWS Console
-- Set up CloudWatch Alarms for failures if needed
+**Required secrets:**
+- `AWS_ACCESS_KEY_ID` - Your AWS access key ID
+- `AWS_SECRET_ACCESS_KEY` - Your AWS secret access key  
+- `S3_BUCKET` - S3 bucket name for storing Lambda zip (e.g., `my-lambda-deployments`)
 
-## Schedule Options
+**Optional secrets:**
+- `AWS_REGION` - AWS region (defaults to `us-east-1`)
 
-The EventBridge rule supports various schedule expressions:
-- `rate(15 minutes)` - Every 15 minutes
-- `rate(1 hour)` - Every hour
-- `cron(0 9 * * ? *)` - Daily at 9 AM UTC
-- `cron(0/15 * * * ? *)` - Every 15 minutes using cron
+**IAM Permissions needed:**
+Your AWS user needs these permissions:
+- `s3:PutObject` on your S3 bucket
+- `cloudformation:*` for stack operations
+- `lambda:*` for Lambda function management
+- `events:*` for EventBridge rules
+- `iam:CreateRole`, `iam:AttachRolePolicy` for Lambda execution role
+
+**Deploy:**
+- **Automatic:** Push code to main/master branch
