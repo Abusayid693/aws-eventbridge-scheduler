@@ -2,13 +2,13 @@ name: Deploy EventBridge Scheduler
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ deploy ]
   workflow_dispatch:
     inputs:
       api_endpoint:
         description: 'API Endpoint to call'
         required: false
-        default: 'https://your-api-server.com/endpoint'
+        default: ''
 
 jobs:
   deploy:
@@ -66,4 +66,4 @@ jobs:
           --parameter-overrides \
             S3Bucket=${{ secrets.S3_BUCKET }} \
             S3Key=lambda-deployment.zip \
-            ApiEndpoint="${{ github.event.inputs.api_endpoint || 'https://your-api-server.com/endpoint' }}"
+            ApiEndpoint="${{ github.event.inputs.api_endpoint || secrets.API_ENDPOINT || 'https://your-api-server.com/endpoint' }}"

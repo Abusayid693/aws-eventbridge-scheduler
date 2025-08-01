@@ -17,16 +17,17 @@ This project contains AWS CloudFormation template and Lambda function code for s
 
 Go to your GitHub repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
 
-**Required secrets:**
-- `AWS_ACCESS_KEY_ID` - Your AWS access key ID
-- `AWS_SECRET_ACCESS_KEY` - Your AWS secret access key  
-- `S3_BUCKET` - S3 bucket name for storing Lambda zip (e.g., `my-lambda-deployments`)
+Updated GitHub secrets list:
 
-**Optional secrets:**
-- `AWS_REGION` - AWS region (defaults to `us-east-1`)
+- AWS_ACCESS_KEY_ID (required)
+- AWS_SECRET_ACCESS_KEY (required)
+- S3_BUCKET (required)
+- API_ENDPOINT (optional - your webhook URL)
+- AWS_REGION (optional)
 
 **IAM Permissions needed:**
 Your AWS user needs these permissions:
+
 - `s3:PutObject` on your S3 bucket
 - `cloudformation:*` for stack operations
 - `lambda:*` for Lambda function management
@@ -34,4 +35,5 @@ Your AWS user needs these permissions:
 - `iam:CreateRole`, `iam:AttachRolePolicy` for Lambda execution role
 
 **Deploy:**
+
 - **Automatic:** Push code to main/master branch

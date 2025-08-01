@@ -83,12 +83,6 @@ Resources:
       Principal: events.amazonaws.com
       SourceArn: !GetAtt ScheduledRule.Arn
 
-  # CloudWatch Log Group for Lambda
-  LambdaLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub '/aws/lambda/${LambdaFunctionName}'
-      RetentionInDays: 14
 
 Outputs:
   LambdaFunctionArn:
