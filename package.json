@@ -1,0 +1,28 @@
+{
+  "name": "eventbridge-api-caller",
+  "version": "1.0.0",
+  "description": "Lambda function for EventBridge scheduler to make API calls",
+  "main": "lambda_function.js",
+  "scripts": {
+    "build": "tsc",
+    "embed": "node build-and-embed.js",
+    "package": "npm run build && zip -r lambda-deployment.zip dist/ package.json",
+    "deploy": "npm run embed && aws cloudformation deploy --template-file eventbridge-scheduler.yaml --stack-name eventbridge-api-scheduler --capabilities CAPABILITY_IAM --parameter-overrides ApiEndpoint=https://your-api-server.com/endpoint"
+  },
+  "dependencies": {
+    "@types/aws-lambda": "^8.10.119"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "eventbridge",
+    "scheduler",
+    "api"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

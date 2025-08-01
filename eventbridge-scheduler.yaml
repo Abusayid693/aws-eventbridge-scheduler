@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'EventBridge Scheduler that runs every 15 minutes to make API calls'
+
+Parameters:
+  ApiEndpoint:
+    Type: String
+    Description: 'The API endpoint to call'
+    Default: 'https://your-api-server.com/endpoint'
+  
+  LambdaFunctionName:
+    Type: String
+    Description: 'Name of the Lambda function'
+    Default: 'eventbridge-api-caller'
+
+Resources:
+  # IAM Role for Lambda Function
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: EventBridgeInvokePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+  # Lambda Function
+  ApiCallerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref LambdaFunctionName
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          API_ENDPOINT: !Ref ApiEndpoint
+      Code:
+        ZipFile: |
+          # LAMBDA_CODE_PLACEHOLDER
+      Timeout: 30
+
+  # EventBridge Rule (runs every 15 minutes)
+  ScheduledRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: 'Trigger Lambda function every 15 minutes'
+      ScheduleExpression: 'rate(15 minutes)'
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt ApiCallerFunction.Arn
+          Id: 'ApiCallerTarget'
+
+  # Permission for EventBridge to invoke Lambda
+  PermissionForEventsToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ApiCallerFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt ScheduledRule.Arn
+
+  # CloudWatch Log Group for Lambda
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LambdaFunctionName}'
+      RetentionInDays: 14
+
+Outputs:
+  LambdaFunctionArn:
+    Description: 'ARN of the Lambda function'
+    Value: !GetAtt ApiCallerFunction.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-LambdaFunctionArn'
+  
+  EventBridgeRuleArn:
+    Description: 'ARN of the EventBridge rule'
+    Value: !GetAtt ScheduledRule.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-EventBridgeRuleArn'
+  
+  LambdaFunctionName:
+    Description: 'Name of the Lambda function'
+    Value: !Ref ApiCallerFunction
+    Export:
+      Name: !Sub '${AWS::StackName}-LambdaFunctionName'
