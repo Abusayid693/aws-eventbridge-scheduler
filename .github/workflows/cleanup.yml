@@ -1,0 +1,57 @@
+name: Cleanup AWS Resources
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "DELETE" to confirm resource deletion'
+        required: true
+        default: ''
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Validate confirmation
+      run: |
+        if [ "${{ github.event.inputs.confirm }}" != "DELETE" ]; then
+          echo "❌ Confirmation failed. Type 'DELETE' to proceed."
+          exit 1
+        fi
+        echo "✅ Confirmation received. Proceeding with cleanup..."
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+    
+    - name: Delete CloudFormation Stack
+      run: |
+        echo "🗑️ Deleting CloudFormation stack..."
+        aws cloudformation delete-stack --stack-name eventbridge-api-scheduler
+        
+        echo "⏳ Waiting for stack deletion to complete..."
+        aws cloudformation wait stack-delete-complete --stack-name eventbridge-api-scheduler
+        
+        echo "✅ Stack deleted successfully!"
+    
+    - name: Cleanup S3 Objects (optional)
+      run: |
+        echo "🧹 Cleaning up S3 deployment artifacts..."
+        aws s3 rm s3://${{ secrets.S3_BUCKET }}/lambda-deployment.zip || echo "File not found or already deleted"
+        echo "✅ S3 cleanup completed!"
+    
+    - name: Cleanup Summary
+      run: |
+        echo "🎉 Cleanup completed successfully!"
+        echo ""
+        echo "Resources deleted:"
+        echo "- CloudFormation stack: eventbridge-api-scheduler"
+        echo "- Lambda function: eventbridge-api-caller"
+        echo "- EventBridge rule: ScheduledRule"  
+        echo "- IAM role: LambdaExecutionRole"
+        echo "- CloudWatch permissions"
+        echo "- S3 deployment artifacts"
