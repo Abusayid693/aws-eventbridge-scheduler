@@ -14,6 +14,8 @@ dist/
 # AWS
 .aws/
 
+eda.md
+SCHEDULER_COMPARISON.md
 # Environment variables
 .env
 .env.local
